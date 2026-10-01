@@ -1,15 +1,10 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getMapConfig } from '../config'
-import MapKeyDialog from '../components/MapKeyDialog.vue'
 
 const route = useRoute()
 const activeMenu = computed(() => route.path)
 const pageTitle = computed(() => route.meta.title || '')
-
-const keyDialogVisible = ref(false)
-const hasMapKey = computed(() => !!getMapConfig().key)
 </script>
 
 <template>
@@ -42,27 +37,11 @@ const hasMapKey = computed(() => !!getMapConfig().key)
           <span>打卡记录</span>
         </el-menu-item>
       </el-menu>
-
-      <div class="sidebar-footer">
-        <button class="map-config-btn" @click="keyDialogVisible = true">
-          <el-icon><Setting /></el-icon>
-          <span>地图配置</span>
-          <span class="status-dot" :class="{ ok: hasMapKey }" />
-        </button>
-      </div>
     </el-aside>
 
     <el-container class="main-container">
       <el-header class="topbar" height="56px">
         <div class="page-title">{{ pageTitle }}</div>
-        <div class="topbar-right">
-          <el-tag v-if="!hasMapKey" type="warning" effect="plain" round @click="keyDialogVisible = true">
-            <el-icon><WarningFilled /></el-icon>&nbsp;未配置地图 Key，点此配置
-          </el-tag>
-          <el-tag v-else type="success" effect="plain" round>
-            <span class="status-dot ok" />高德地图已启用
-          </el-tag>
-        </div>
       </el-header>
 
       <el-main class="page-main">
@@ -73,8 +52,6 @@ const hasMapKey = computed(() => !!getMapConfig().key)
         </router-view>
       </el-main>
     </el-container>
-
-    <MapKeyDialog v-model="keyDialogVisible" />
   </el-container>
 </template>
 
@@ -151,44 +128,6 @@ const hasMapKey = computed(() => !!getMapConfig().key)
   }
 }
 
-.sidebar-footer {
-  padding: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.map-config-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 9px 12px;
-  border: none;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #b9c0d0;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.2s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.12);
-    color: #fff;
-  }
-
-  .status-dot {
-    margin-left: auto;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #f59e0b;
-
-    &.ok {
-      background: #22c55e;
-      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
-    }
-  }
-}
-
 .main-container {
   min-width: 0;
 }
@@ -196,7 +135,6 @@ const hasMapKey = computed(() => !!getMapConfig().key)
 .topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   background: #fff;
   border-bottom: 1px solid #eceef3;
   padding: 0 24px;
@@ -215,25 +153,6 @@ const hasMapKey = computed(() => !!getMapConfig().key)
       background: #2563eb;
       margin-right: 10px;
       vertical-align: -2px;
-    }
-  }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    .el-tag {
-      cursor: pointer;
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #22c55e;
-      margin-right: 2px;
     }
   }
 }
