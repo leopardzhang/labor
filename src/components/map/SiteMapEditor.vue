@@ -46,16 +46,24 @@ function editorClose() {
 }
 
 function bindEditor(target) {
-  if (!polyEditor) return
-  if (typeof polyEditor.setTarget === 'function') {
-    polyEditor.setTarget(target)
-  } else {
+  // 编辑器全生命周期只构造一次：事件仅在构造时绑定，避免重复 .on() 造成监听器堆叠
+  if (!polyEditor) {
     polyEditor = new AMap.PolygonEditor(map, target)
     bindEditorEvents()
+    return
   }
+  if (typeof polyEditor.setTarget === 'function') {
+    polyEditor.setTarget(target)
+    return
+  }
+  // 兜底：极旧版本无 setTarget，先关闭旧编辑器（其事件随旧实例一并释放）再重建
+  editorClose()
+  polyEditor = new AMap.PolygonEditor(map, target)
+  bindEditorEvents()
 }
 
 function bindEditorEvents() {
+  // 仅在 new PolygonEditor 之后调用一次，禁止在 setTarget 等路径重复调用
   const sync = () => syncFromPolygon()
   polyEditor.on('addnode', sync)
   polyEditor.on('removenode', sync)
@@ -127,9 +135,7 @@ function onReady(payload) {
   map = payload.map
   ready.value = true
 
-  polyEditor = new AMap.PolygonEditor(map)
-  bindEditorEvents()
-
+  // PolygonEditor 延迟到首次绑定多边形时构造（见 bindEditor），事件随之只绑定一次
   mouseTool = new AMap.MouseTool(map)
   mouseTool.on('draw', (event) => {
     drawing.value = false
